@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro Familiar</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0e1a;
+  --bg2:#111827;
+  --bg3:#1a2235;
+  --bg4:#1e2d45;
+  --border:rgba(100,160,255,0.10);
+  --border2:rgba(100,160,255,0.18);
+  --text:#e8f0fe;
+  --muted:#7c8faa;
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.10);--green-text:#4ade80;
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.10);--red-text:#f87171;
+  --blue:#3b82f6;--blue2:#60a5fa;--blue-bg:rgba(59,130,246,0.12);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.10);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.10);--amber-text:#fbbf24;
+  --radius:12px;--radius-sm:8px;--radius-xs:5px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+.main-header{
+  background:linear-gradient(135deg,#0d1b3e 0%,#0a1628 50%,#0d1b3e 100%);
+  border-bottom:1px solid var(--border2);
+  padding:18px 24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  position:sticky;top:0;z-index:50;
+}
+.main-header h1{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;letter-spacing:-0.01em;}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.month-selector{display:flex;align-items:center;gap:8px;}
+.month-selector label{font-size:12px;color:var(--muted);}
+.month-selector input{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 10px;font-size:13px;cursor:pointer;}
+
+.app{max-width:1100px;margin:0 auto;padding:24px 16px 80px;}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap;}
+.tab{background:none;border:none;color:var(--muted);cursor:pointer;padding:10px 15px;font-size:13px;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;font-family:inherit;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--blue2);border-bottom-color:var(--blue2);font-weight:600;}
+.section{display:none;}.section.active{display:block;}
+
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+.card-title a{color: var(--blue2); text-transform: none; font-weight: normal; margin-left: auto; text-decoration: none;}
+.card-title a:hover{text-decoration: underline;}
+
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
+input[type="text"],select{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);padding:9px 12px;font-size:13px;width:100%;transition:border-color 0.15s;font-family:inherit;}
+input:focus,select:focus{outline:none;border-color:var(--blue);}
+.field-hint{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.toggle-group{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.toggle-group button{flex:1;background:none;border:none;color:var(--muted);padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.toggle-group button.active{background:var(--blue);color:#fff;}
+
+.highlight-card{
+  background:linear-gradient(135deg,#0d2140 0%,#0f2a50 100%);
+  border:1px solid rgba(59,130,246,0.25);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.highlight-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+.highlight-val{font-size:32px;font-weight:800;line-height:1;}
+.highlight-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+.resumo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px;}
+.resumo-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.resumo-icon{font-size:24px;margin-bottom:8px;}
+.resumo-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.resumo-val{font-size:24px;font-weight:800;}
+.saldo-positivo{color:var(--green-text) !important;}
+.saldo-negativo{color:var(--red-text) !important;}
+
+.pessoa-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;}
+.pessoa-card.danrlei::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+.pessoa-card.cristiane::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#a78bfa,#ec4899);}
+.pessoa-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.pessoa-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.danrlei .pessoa-avatar{background:var(--blue-bg);border:1px solid rgba(59,130,246,0.3);}
+.cristiane .pessoa-avatar{background:var(--purple-bg);border:1px solid rgba(167,139,250,0.3);}
+.pessoa-name{font-weight:700;font-size:15px;}
+.pessoa-role{font-size:11px;color:var(--muted);}
+
+.resultado-box{background:var(--bg3);border-radius:var(--radius-sm);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+.resultado-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;}
+.resultado-val{font-size:22px;font-weight:800;}
+
+.descontos-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.desconto-item{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;}
+.desconto-nome{flex:1;font-size:13px;}
+.desconto-val{font-size:13px;font-weight:600;color:var(--red-text);}
+.desconto-actions{display:flex;gap:4px;}
+.desconto-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 8px;border-radius:4px;transition:all 0.15s;}
+.desconto-btn.edit:hover{background:var(--blue-bg);color:var(--blue2);}
+.desconto-btn.del:hover{background:var(--red-bg);color:var(--red-text);}
+.btn-add-desconto{background:none;border:1px dashed var(--border);border-radius:var(--radius-sm);color:var(--muted);padding:8px;width:100%;text-align:center;cursor:pointer;font-size:12px;transition:all 0.15s;margin-top:6px;}
+.btn-add-desconto:hover{border-color:var(--blue);color:var(--blue);}
+
+.btn{border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;padding:10px 20px;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
+.btn-primary{background:var(--blue);color:#fff;}.btn-primary:hover{background:#2563eb;}
+.btn-primary.btn-success{background:var(--green);}.btn-primary.btn-success:hover{background:#16a34a;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+
+.imposto-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.imposto-row:last-child{border-bottom:none;}
+.imposto-row .lbl{color:var(--muted);}
+.imposto-row .val{font-weight:600;}
+
+.hist-mes{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;}
+.hist-mes-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.hist-mes-title{font-weight:700;font-size:15px;}
+.hist-mes-saldo{font-size:17px;font-weight:800;}
+
+.hist-table-responsive {width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 5px; border-radius: var(--radius-sm);}
+.hist-table{width:100%;border-collapse:collapse;font-size:12px; min-width: 550px;}
+.hist-table th{text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--border);}
+.hist-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+
+#toast{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 24px;font-size:14px;font-weight:600;z-index:200;box-shadow:var(--shadow);white-space:nowrap;}
+#toast.toast-ok{background:#0d2e1a;border-color:#22c55e;color:#4ade80;}
+#toast.toast-err{background:#2e0d0d;border-color:#ef4444;color:#f87171;}
+.progress-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;transition:width 0.5s ease;}
+
+/* Novos estilos para o painel avançado de distribuição */
+.dist-grid {display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 10px;}
+.dist-col {background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px;}
+.dist-col-title {font-size: 12px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); padding-bottom: 6px;}
+.dist-data-row {display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0;}
+.dist-label {color: var(--muted);}
+.dist-value {font-weight: 600;}
+.dist-percentage {font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
+.pct-blue {background: var(--blue-bg); color: var(--blue2);}
+.pct-purple {background: var(--purple-bg); color: var(--purple);}
+.pct-red {background: var(--red-bg); color: var(--red-text);}
+.pct-green {background: var(--green-bg); color: var(--green-text);}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div class="main-header">
+  <h1>Financeiro Familiar</h1>
+  <div class="header-right">
+    <div class="month-selector">
+      <label>Mês:</label>
+      <input type="month" id="mes-atual">
+    </div>
+    <button class="btn btn-primary btn-sm btn-success" id="btn-salvar" onclick="window.salvarMes()">💾 Salvar mês</button>
+    <button class="btn btn-sm" id="btn-logout" style="display:none;background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.3);" onclick="window.fazerLogout()">🚪 Sair</button>
+    <button class="btn btn-sm" id="btn-login" style="display:none;background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);" onclick="window.fazerLogin()">🔑 Entrar</button>
+  </div>
+</div>
+
+<div class="app">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('resumo',this)">🏠 Resumo Familiar</button>
+    <button class="tab" onclick="switchTab('resumo-teste',this)">🧪 Resumo Familiar Real</button>
+    <button class="tab" onclick="switchTab('danrlei',this)">👤 Danrlei</button>
+    <button class="tab" onclick="switchTab('danrlei-teste',this)">👤 Danrlei Real</button>
+    <button class="tab" onclick="switchTab('cristiane',this)">👩 Cristiane</button>
+    <button class="tab" onclick="switchTab('historico',this)">📋 Histórico</button>
+  </div>
+
+  <div id="sec-resumo" class="section active">
+    <div class="highlight-card">
+      <div>
+        <div class="highlight-label">💚 Saldo do mês Real</div>
+        <div class="highlight-val" id="res-saldo">R$ 0,00</div>
+        <div class="highlight-sub" id="res-saldo-sub">—</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="highlight-label">📅 Período</div>
+        <div style="font-size:18px;font-weight:700;" id="res-periodo">—</div>
+      </div>
+    </div>
+
+    <div class="resumo-grid">
+      <div class="resumo-card">
+        <div class="resumo-icon">💼</div>
+        <div class="resumo-label">Líquido Danrlei</div>
+        <div class="resumo-val" id="res-dan">R$ 0,00</div>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-icon">👩</div>
+        <div class="resumo-label">Líquido Cristiane</div>
+        <div class="resumo-val" id="res-cris">R$ 0,00</div>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-icon">📥</div>
+        <div class="resumo-label">Total de entradas</div>
+        <div class="resumo-val" id="res-entradas">R$ 0,00</div>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-icon">📤</div>
+        <div class="resumo-label">Total de descontos</div>
+        <div class="resumo-val" id="res-descontos">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📊</span> Distribuição Detalhada de Gastos e Ganhos Reais</div>
+      <div id="res-distribuicao"></div>
+    </div>
+  </div>
+
+  <div id="sec-resumo-teste" class="section">
+    <div class="highlight-card" style="background: linear-gradient(135deg, #2b1b40 0%, #1a122c 100%); border-color: rgba(167, 139, 250, 0.3);">
+      <div>
+        <div class="highlight-label">🧪 Saldo do mês (Simulação)</div>
+        <div class="highlight-val" id="t-res-saldo">R$ 0,00</div>
+        <div class="highlight-sub" id="t-res-saldo-sub">—</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="highlight-label">⚠️ Status</div>
+        <div style="font-size:16px;font-weight:700; color: var(--purple);" id="t-res-periodo">Apenas Simulação</div>
+      </div>
+    </div>
+
+    <div class="resumo-grid">
+      <div class="resumo-card">
+        <div class="resumo-icon">🧪</div>
+        <div class="resumo-label">Líquido Danrlei Real</div>
+        <div class="resumo-val" id="t-res-dan">R$ 0,00</div>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-icon">👩</div>
+        <div class="resumo-label">Líquido Cristiane</div>
+        <div class="resumo-val" id="t-res-cris">R$ 0,00</div>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-icon">📥</div>
+        <div class="resumo-label">Total Entradas Simulação</div>
+        <div class="resumo-val" id="t-res-entradas">R$ 0,00</div>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-icon">📤</div>
+        <div class="resumo-label">Total Descontos Simulação</div>
+        <div class="resumo-val" id="t-res-descontos">R$ 0,00</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sec-danrlei" class="section">
+    <div class="card">
+      <div class="card-title"><span>💼</span> Renda (Soma do Salário Base) — Danrlei</div>
+      <div class="form-row">
+        <div class="field"><label>Componente 1</label><input type="text" id="d-sal1" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 2</label><input type="text" id="d-sal2" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 3</label><input type="text" id="d-sal3" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 4</label><input type="text" id="d-sal4" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 5</label><input type="text" id="d-sal15" class="moeda-input" placeholder="R$ 0,00"></div>
+      </div>
+      <div class="imposto-row" style="margin-top:10px;"><span class="lbl" style="font-weight:600;">Salário Base Total Calculado:</span><span class="val" id="d-salario-total">R$ 0,00</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📈</span> Comissão</div>
+      <div class="form-row">
+        <div class="field">
+          <label>Faturamento do mês</label>
+          <input type="text" id="d-vendas" class="moeda-input" placeholder="R$ 0,00">
+        </div>
+        <div class="field">
+          <label>Taxa de comissão</label>
+          <div class="toggle-group" id="d-comissao-toggle">
+            <button class="active" onclick="setComissao(0.00015,this,'d')">0,015%</button>
+            <button onclick="setComissao(0.0003,this,'d')">0,03%</button>
+          </div>
+          <div class="field-hint" id="d-comissao-hint">Comissão: R$ 0,00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🎁</span> Benefícios</div>
+      <div class="form-row">
+        <div class="field"><label>Vale alimentação</label><input type="text" id="d-va" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Auxílio combustível</label><input type="text" id="d-comb" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Outros benefícios</label><input type="text" id="d-outros-ben" class="moeda-input" placeholder="R$ 0,00"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📉</span> Descontos pessoais</div>
+      <div id="d-lista-descontos" class="descontos-list"></div>
+      <div id="d-add-form" style="display:none;background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:8px;">
+        <input type="hidden" id="d-edit-id">
+        <div class="form-row">
+          <div class="field"><label>Descrição</label><input type="text" id="d-desc-novo"></div>
+          <div class="field"><label>Valor</label><input type="text" id="d-val-novo" class="moeda-input" placeholder="R$ 0,00"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-primary btn-sm" id="d-btn-salvar-desc" onclick="adicionarDesconto('d')">Adicionar</button>
+          <button class="btn btn-sm" style="background:var(--bg2);color:var(--muted);" onclick="fecharFormDesconto('d')">Cancelar</button>
+        </div>
+      </div>
+      <button class="btn-add-desconto" onclick="abrirFormDesconto('d')">➕ Adicionar desconto</button>
+    </div>
+
+    <div class="card" style="border-color: rgba(59, 130, 246, 0.2);">
+      <div class="card-title" style="color: var(--blue2);"><span>🏛️</span> Impostos Retidos Real (Cálculo Automático 2026) <a href="https://www.idinheiro.com.br/calculadoras/calculadora-de-salario-liquido/#top-ads" target="_blank">🔗 ir para Calculadora</a></div>
+      <div class="form-row">
+        <div class="field">
+          <label>Desconto INSS Manual</label>
+          <input type="text" id="d-inss-manual" class="moeda-input" placeholder="R$ 0,00">
+        </div>
+        <div class="field">
+          <label>Desconto IRRF Manual</label>
+          <input type="text" id="d-irrf-manual" class="moeda-input" placeholder="R$ 0,00">
+        </div>
+      </div>
+    </div>
+
+    <div class="pessoa-card danrlei">
+      <div class="pessoa-header">
+        <div class="pessoa-avatar">👤</div>
+        <div><div class="pessoa-name">Danrlei</div><div class="pessoa-role">Resumo</div></div>
+      </div>
+      <div class="imposto-row"><span class="lbl">Salário Base (Soma)</span><span class="val" id="d-r-salario">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">Comissão</span><span class="val" id="d-r-comissao">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">Benefícios</span><span class="val" id="d-r-beneficios">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) INSS Manual</span><span class="val" style="color:var(--red-text);" id="d-r-inss">- R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) IRRF Manual</span><span class="val" style="color:var(--red-text);" id="d-r-irrf">- R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) Outros Descontos</span><span class="val" style="color:var(--red-text);" id="d-r-desc">- R$ 0,00</span></div>
+      
+      <div class="resultado-box">
+        <span class="resultado-label">💚 Líquido final</span>
+        <span class="resultado-val" id="d-liquido">R$ 0,00</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="sec-danrlei-teste" class="section">
+    <div class="card" style="border-color: var(--purple);">
+      <div class="card-title" style="color: var(--purple);"><span>💼</span> Renda (Soma) — Danrlei Real</div>
+      <div class="form-row">
+        <div class="field"><label>Componente 1</label><input type="text" id="dt-sal1" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 2</label><input type="text" id="dt-sal2" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 3</label><input type="text" id="dt-sal3" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 4</label><input type="text" id="dt-sal4" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Componente 5</label><input type="text" id="dt-sal5" class="moeda-input" placeholder="R$ 0,00"></div>
+      </div>
+      <div class="imposto-row" style="margin-top:10px;"><span class="lbl" style="font-weight:600;">Salário Base Real Calculado:</span><span class="val" id="dt-salario-total">R$ 0,00</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📈</span> Comissão Real</div>
+      <div class="form-row">
+        <div class="field">
+          <label>Faturamento do mês</label>
+          <input type="text" id="dt-vendas" class="moeda-input" placeholder="R$ 0,00">
+        </div>
+        <div class="field">
+          <label>Taxa de comissão</label>
+          <div class="toggle-group" id="dt-comissao-toggle">
+            <button class="active" onclick="setComissao(0.00015,this,'dt')">0,015%</button>
+            <button onclick="setComissao(0.0003,this,'dt')">0,03%</button>
+          </div>
+          <div class="field-hint" id="dt-comissao-hint">Comissão: R$ 0,00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🎁</span> Benefícios Reais</div>
+      <div class="form-row">
+        <div class="field"><label>Vale alimentação</label><input type="text" id="dt-va" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Auxílio combustível</label><input type="text" id="dt-comb" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Outros benefícios</label><input type="text" id="dt-outros-ben" class="moeda-input" placeholder="R$ 0,00"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📉</span> Descontos pessoais Real</div>
+      <div id="dt-lista-descontos" class="descontos-list"></div>
+      <div id="dt-add-form" style="display:none;background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:8px;">
+        <input type="hidden" id="dt-edit-id">
+        <div class="form-row">
+          <div class="field"><label>Descrição</label><input type="text" id="dt-desc-novo"></div>
+          <div class="field"><label>Valor</label><input type="text" id="dt-val-novo" class="moeda-input" placeholder="R$ 0,00"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-primary btn-sm" id="dt-btn-salvar-desc" onclick="adicionarDesconto('dt')">Adicionar</button>
+          <button class="btn btn-sm" style="background:var(--bg2);color:var(--muted);" onclick="fecharFormDesconto('dt')">Cancelar</button>
+        </div>
+      </div>
+      <button class="btn-add-desconto" onclick="abrirFormDesconto('dt')">➕ Adicionar desconto</button>
+    </div>
+
+    <div class="card" style="border-color: rgba(167, 139, 250, 0.2);">
+      <div class="card-title" style="color: var(--purple);"><span>🏛️</span> Impostos Retidos Real (Cálculo Automático 2026) <a href="https://www.idinheiro.com.br/calculadoras/calculadora-de-salario-liquido/#top-ads" target="_blank">🔗 ir para Calculadora</a></div>
+      <div class="form-row">
+        <div class="field">
+          <label>Desconto INSS Real</label>
+          <input type="text" id="dt-inss-manual" class="moeda-input" placeholder="R$ 0,00">
+        </div>
+        <div class="field">
+          <label>Desconto IRRF Real</label>
+          <input type="text" id="dt-irrf-manual" class="moeda-input" placeholder="R$ 0,00">
+        </div>
+      </div>
+    </div>
+
+    <div class="pessoa-card danrlei" style="border-color: var(--purple);">
+      <div class="pessoa-header">
+        <div class="pessoa-avatar" style="background: var(--purple-bg);">👤</div>
+        <div><div class="pessoa-name">Danrlei Real</div><div class="pessoa-role">Resumo Real</div></div>
+      </div>
+      <div class="imposto-row"><span class="lbl">Salário Base (Soma)</span><span class="val" id="dt-r-salario">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">Comissão</span><span class="val" id="dt-r-comissao">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">Benefícios</span><span class="val" id="dt-r-beneficios">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) INSS Manual</span><span class="val" style="color:var(--red-text);" id="dt-r-inss">- R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) IRRF Manual</span><span class="val" style="color:var(--red-text);" id="dt-r-irrf">- R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) Outros Descontos</span><span class="val" style="color:var(--red-text);" id="dt-r-desc">- R$ 0,00</span></div>
+      
+      <div class="resultado-box">
+        <span class="resultado-label">💚 Líquido Real</span>
+        <span class="resultado-val" id="dt-liquido">R$ 0,00</span>
+      </div>
+      <div class="resultado-box" style="margin-top: 10px; border-top: 1px dashed var(--border2); padding-top: 14px;">
+        <span class="resultado-label" style="color: var(--purple); font-weight: bold;">📊 Diferença Real (Real - Danrlei)</span>
+        <span class="resultado-val" id="dt-diferenca-real">R$ 0,00</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="sec-cristiane" class="section">
+    <div class="card">
+      <div class="card-title"><span>👩</span> Renda — Cristiane</div>
+      <div class="form-row">
+        <div class="field"><label>Salário</label><input type="text" id="c-salario" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Outras rendas</label><input type="text" id="c-outros-renda" class="moeda-input" placeholder="R$ 0,00"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🎁</span> Benefícios</div>
+      <div class="form-row">
+        <div class="field"><label>Vale alimentação</label><input type="text" id="c-va" class="moeda-input" placeholder="R$ 0,00"></div>
+        <div class="field"><label>Outros benefícios</label><input type="text" id="c-outros-ben" class="moeda-input" placeholder="R$ 0,00"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📉</span> Descontos pessoais</div>
+      <div id="c-lista-descontos" class="descontos-list"></div>
+      <div id="c-add-form" style="display:none;background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:8px;">
+        <input type="hidden" id="c-edit-id">
+        <div class="form-row">
+          <div class="field"><label>Descrição</label><input type="text" id="c-desc-novo"></div>
+          <div class="field"><label>Valor</label><input type="text" id="c-val-novo" class="moeda-input" placeholder="R$ 0,00"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-primary btn-sm" id="c-btn-salvar-desc" onclick="adicionarDesconto('c')">Adicionar</button>
+          <button class="btn btn-sm" style="background:var(--bg2);color:var(--muted);" onclick="fecharFormDesconto('c')">Cancelar</button>
+        </div>
+      </div>
+      <button class="btn-add-desconto" onclick="abrirFormDesconto('c')">➕ Adicionar desconto</button>
+    </div>
+
+    <div class="pessoa-card cristiane">
+      <div class="pessoa-header">
+        <div class="pessoa-avatar">👩</div>
+        <div><div class="pessoa-name">Cristiane</div><div class="pessoa-role">Resumo</div></div>
+      </div>
+      <div class="imposto-row"><span class="lbl">Salário</span><span class="val" id="c-r-salario">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">Outras rendas</span><span class="val" id="c-r-outros">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">Benefícios</span><span class="val" id="c-r-beneficios">R$ 0,00</span></div>
+      <div class="imposto-row"><span class="lbl">(-) Descontos</span><span class="val" style="color:var(--red-text);" id="c-r-desc">- R$ 0,00</span></div>
+      <div class="resultado-box">
+        <span class="resultado-label">💚 Líquido final</span>
+        <span class="resultado-val" id="c-liquido">R$ 0,00</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="sec-historico" class="section">
+    <div id="hist-container"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDu0-77GrZZknprlm6ZzV81NR5xL9i0CFs",
+  authDomain: "financeiro-familiar-6ff75.firebaseapp.com",
+  projectId: "financeiro-familiar-6ff75",
+  storageBucket: "financeiro-familiar-6ff75.firebasestorage.app",
+  messagingSenderId: "593847592837",
+  appId: "1:593847592837:web:9f8e7d6c5b4a3f2e1d0c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+let usuarioLogado = null;
+window.historico = [];
+
+function calculateINSS2026(brute) {
+  const faixas = [
+    { limite: 1621.00, aliquota: 0.075 },
+    { limite: 2902.84, aliquota: 0.09 },
+    { limite: 4354.27, aliquota: 0.12 },
+    { limite: 8475.55, aliquota: 0.14 }
+  ];
+  let inss = 0;
+  let anterior = 0;
+  for (let faixa of faixas) {
+    if (brute <= anterior) break;
+    const valor = Math.min(brute, faixa.limite) - anterior;
+    inss += valor * faixa.aliquota;
+    anterior = faixa.limite;
+  }
+  return inss;
+}
+
+function calculateIRRF2026(baseCalculo) {
+  if (baseCalculo <= 5000) return 0;
+  const faixas = [
+    { limite: 2826.65, aliquota: 0.075, deducao: 158.40 },
+    { limite: 3751.05, aliquota: 0.15, deducao: 370.40 },
+    { limite: 4664.68, aliquota: 0.225, deducao: 651.73 },
+    { limite: 7786.02, aliquota: 0.275, deducao: 886.63 }
+  ];
+  let irrf = 0;
+  for (let faixa of faixas) {
+    if (baseCalculo <= faixa.limite) {
+      irrf = (baseCalculo * faixa.aliquota) - faixa.deducao;
+      return Math.max(0, irrf);
+    }
+  }
+  if (baseCalculo > 7786.02) {
+    irrf = (baseCalculo * 0.275) - 886.63;
+  }
+  return Math.max(0, irrf);
+}
+
+window.fazerLogin = function() {
+  signInWithPopup(auth, provider).catch(e => window.showToast('❌ Erro login: ' + e.message, 'err'));
+};
+
+window.fazerLogout = function() {
+  signOut(auth).then(() => { window.historico = []; window.renderHistorico(); window.limparFormulario(); window.recalcular(); }).catch(e => window.showToast('❌ Erro logout: ' + e.message, 'err'));
+};
+
+onAuthStateChanged(auth, user => {
+  const btnLogin = document.getElementById('btn-login');
+  const btnLogout = document.getElementById('btn-logout');
+  if (user) {
+    usuarioLogado = user;
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (btnLogout) btnLogout.style.display = 'inline-flex';
+    window.showToast('👋 Conectado como ' + user.displayName, 'ok');
+    
+    const q = query(collection(db, "fin_meses"), where("uid", "==", user.uid));
+    onSnapshot(q, snapshot => {
+      window.historico = [];
+      snapshot.forEach(doc => { window.historico.push(doc.data()); });
+      window.historico.sort((a,b) => b.mes.localeCompare(a.mes));
+      window.renderHistorico();
+      
+      const inputMes = document.getElementById('mes-atual');
+      if (inputMes && inputMes.value) {
+        window.carregarMes(inputMes.value);
+      } else if (window.historico.length > 0) {
+        if (inputMes) inputMes.value = window.historico[0].mes;
+        window.carregarMes(window.historico[0].mes);
+      }
+      window.recalcular();
+    });
+  } else {
+    usuarioLogado = null;
+    if (btnLogin) btnLogin.style.display = 'inline-flex';
+    if (btnLogout) btnLogout.style.display = 'none';
+    carregarHistoricoLocal();
+    window.renderHistorico();
+    window.recalcular();
+  }
+});
+
+function salvarHistoricoLocal() {
+  if (!usuarioLogado) localStorage.setItem('fin_historico', JSON.stringify(window.historico));
+}
+
+function carregarHistoricoLocal() {
+  const h = localStorage.getItem('fin_historico');
+  window.historico = h ? JSON.parse(h) : [];
+  window.historico.sort((a,b) => b.mes.localeCompare(a.mes));
+}
+
+window.dadosPessoas = {
+  d: { comissaoTaxa: 0.00015, descontos: [] },
+  dt: { comissaoTaxa: 0.00015, descontos: [] },
+  c: { comissaoTaxa: 0, descontos: [] }
+};
+
+window.switchTab = function(tabId, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  const section = document.getElementById('sec-' + tabId);
+  if (section) section.classList.add('active');
+};
+
+function parseM(v) {
+  if (!v) return 0;
+  if (typeof v === 'number') return v;
+  let s = v.replace(/[R$\s]/g, '').replace(/\./g, '').replace(',', '.');
+  return parseFloat(s) || 0;
+}
+
+window.fmtM = function(v) {
+  return 'R$ ' + Math.abs(parseFloat(v) || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+};
+
+function setupMoedaInput(input) {
+  input.addEventListener('input', e => {
+    let target = e.target;
+    let v = target.value.replace(/\D/g, '');
+    v = (v / 100).toFixed(2) + '';
+    v = v.replace(".", ",");
+    v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    target.value = v ? 'R$ ' + v : '';
+    window.recalcular();
+  });
+}
+
+window.setComissao = function(taxa, btn, pfx) {
+  const p = btn.parentNode;
+  p.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  window.dadosPessoas[pfx].comissaoTaxa = taxa;
+  window.recalcular();
+};
+
+window.abrirFormDesconto = function(pfx) {
+  const form = document.getElementById(pfx + '-add-form');
+  if (form) {
+    form.style.display = 'block';
+    document.getElementById(pfx + '-edit-id').value = '';
+    document.getElementById(pfx + '-desc-novo').value = '';
+    document.getElementById(pfx + '-val-novo').value = '';
+    document.getElementById(pfx + '-btn-salvar-desc').textContent = 'Adicionar';
+  }
+};
+
+window.fecharFormDesconto = function(pfx) {
+  const form = document.getElementById(pfx + '-add-form');
+  if (form) form.style.display = 'none';
+};
+
+window.adicionarDesconto = function(pfx) {
+  const desc = document.getElementById(pfx + '-desc-novo').value.trim();
+  const val = parseM(document.getElementById(pfx + '-val-novo').value);
+  const idEdit = document.getElementById(pfx + '-edit-id').value;
+  
+  if (!desc || val <= 0) { window.showToast('⚠️ Preencha a descrição e valor.', 'err'); return; }
+  
+  if (idEdit) {
+    const item = window.dadosPessoas[pfx].descontos.find(d => d.id == idEdit);
+    if (item) { item.desc = desc; item.val = val; }
+  } else {
+    window.dadosPessoas[pfx].descontos.push({ id: Date.now(), desc, val });
+  }
+  
+  window.fecharFormDesconto(pfx);
+  window.renderDescontos(pfx);
+  window.recalcular();
+};
+
+window.deletarDesconto = function(pfx, id) {
+  window.dadosPessoas[pfx].descontos = window.dadosPessoas[pfx].descontos.filter(d => d.id != id);
+  window.renderDescontos(pfx);
+  window.recalcular();
+};
+
+window.editarDesconto = function(pfx, id) {
+  const item = window.dadosPessoas[pfx].descontos.find(d => d.id == id);
+  if (!item) return;
+  window.abrirFormDesconto(pfx);
+  document.getElementById(pfx + '-edit-id').value = item.id;
+  document.getElementById(pfx + '-desc-novo').value = item.desc;
+  document.getElementById(pfx + '-val-novo').value = window.fmtM(item.val);
+  document.getElementById(pfx + '-btn-salvar-desc').textContent = 'Salvar';
+};
+
+window.renderDescontos = function(pfx) {
+  const lista = document.getElementById(pfx + '-lista-descontos');
+  if (!lista) return;
+  lista.innerHTML = '';
+  window.dadosPessoas[pfx].descontos.forEach(d => {
+    const item = document.createElement('div');
+    item.className = 'desconto-item';
+    item.innerHTML = `<span class="desconto-nome">${d.desc}</span>
+      <span class="desconto-val">- ${window.fmtM(d.val)}</span>
+      <div class="desconto-actions">
+        <button class="desconto-btn edit" onclick="window.editarDesconto('${pfx}',${d.id})">✏️</button>
+        <button class="desconto-btn del" onclick="window.deletarDesconto('${pfx}',${d.id})">🗑️</button>
+      </div>`;
+    lista.appendChild(item);
+  });
+};
+
+window.recalcular = function() {
+  // --- ABA DANRLEI (PADRÃO) ---
+  const d_sal1 = parseM(document.getElementById('d-sal1')?.value);
+  const d_sal2 = parseM(document.getElementById('d-sal2')?.value);
+  const d_sal3 = parseM(document.getElementById('d-sal3')?.value);
+  const d_sal4 = parseM(document.getElementById('d-sal4')?.value);
+  const d_sal15 = parseM(document.getElementById('d-sal15')?.value);
+  const d_salario_total = d_sal1 + d_sal2 + d_sal3 + d_sal4 + d_sal15;
+  
+  if (document.getElementById('d-salario-total')) document.getElementById('d-salario-total').textContent = window.fmtM(d_salario_total);
+  
+  const d_vendas = parseM(document.getElementById('d-vendas')?.value);
+  const d_comissao = d_vendas * window.dadosPessoas.d.comissaoTaxa;
+  if (document.getElementById('d-comissao-hint')) document.getElementById('d-comissao-hint').textContent = 'Comissão: ' + window.fmtM(d_comissao);
+  
+  const d_va = parseM(document.getElementById('d-va')?.value);
+  const d_comb = parseM(document.getElementById('d-comb')?.value);
+  const d_outros_ben = parseM(document.getElementById('d-outros-ben')?.value);
+  const d_beneficios_total = d_va + d_comb + d_outros_ben;
+  
+  const d_base_calculo = d_salario_total + d_comissao;
+  
+  // Modificado para pegar os valores preenchidos manualmente pelo usuário
+  const d_inss = parseM(document.getElementById('d-inss-manual')?.value);
+  const d_irrf = parseM(document.getElementById('d-irrf-manual')?.value);
+  
+  const d_outros_desc = window.dadosPessoas.d.descontos.reduce((acc, curr) => acc + curr.val, 0);
+  const d_entradas_individuais = d_base_calculo + d_beneficios_total;
+  const d_descontos_individuais = d_inss + d_irrf + d_outros_desc;
+  const d_liquido_final = d_entradas_individuais - d_descontos_individuais;
+  
+  if (document.getElementById('d-r-salario')) document.getElementById('d-r-salario').textContent = window.fmtM(d_salario_total);
+  if (document.getElementById('d-r-comissao')) document.getElementById('d-r-comissao').textContent = window.fmtM(d_comissao);
+  if (document.getElementById('d-r-beneficios')) document.getElementById('d-r-beneficios').textContent = window.fmtM(d_beneficios_total);
+  if (document.getElementById('d-r-inss')) document.getElementById('d-r-inss').textContent = '- ' + window.fmtM(d_inss);
+  if (document.getElementById('d-r-irrf')) document.getElementById('d-r-irrf').textContent = '- ' + window.fmtM(d_irrf);
+  if (document.getElementById('d-r-desc')) document.getElementById('d-r-desc').textContent = '- ' + window.fmtM(d_outros_desc);
+  
+  const dLiquidoEl = document.getElementById('d-liquido');
+  if (dLiquidoEl) {
+    dLiquidoEl.textContent = window.fmtM(d_liquido_final);
+    dLiquidoEl.className = 'resultado-val ' + (d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+
+  // --- ABA DANRLEI REAL (ANTIGA TESTE) ---
+  const dt_sal1 = parseM(document.getElementById('dt-sal1')?.value);
+  const dt_sal2 = parseM(document.getElementById('dt-sal2')?.value);
+  const dt_sal3 = parseM(document.getElementById('dt-sal3')?.value);
+  const dt_sal4 = parseM(document.getElementById('dt-sal4')?.value);
+  const dt_sal5 = parseM(document.getElementById('dt-sal5')?.value);
+  const dt_salario_total = dt_sal1 + dt_sal2 + dt_sal3 + dt_sal4 + dt_sal5;
+  
+  if (document.getElementById('dt-salario-total')) document.getElementById('dt-salario-total').textContent = window.fmtM(dt_salario_total);
+  
+  const dt_vendas = parseM(document.getElementById('dt-vendas')?.value);
+  const dt_comissao = dt_vendas * window.dadosPessoas.dt.comissaoTaxa;
+  if (document.getElementById('dt-comissao-hint')) document.getElementById('dt-comissao-hint').textContent = 'Comissão: ' + window.fmtM(dt_comissao);
+  
+  const dt_va = parseM(document.getElementById('dt-va')?.value);
+  const dt_comb = parseM(document.getElementById('dt-comb')?.value);
+  const dt_outros_ben = parseM(document.getElementById('dt-outros-ben')?.value);
+  const dt_beneficios_total = dt_va + dt_comb + dt_outros_ben;
+  
+  const dt_base_calculo = dt_salario_total + dt_comissao;
+  
+  // Modificado para pegar os valores preenchidos manualmente pelo usuário
+  const dt_inss = parseM(document.getElementById('dt-inss-manual')?.value);
+  const dt_irrf = parseM(document.getElementById('dt-irrf-manual')?.value);
+  
+  const dt_outros_desc = window.dadosPessoas.dt.descontos.reduce((acc, curr) => acc + curr.val, 0);
+  const dt_entradas_individuais = dt_base_calculo + dt_beneficios_total;
+  const dt_descontos_individuais = dt_inss + dt_irrf + dt_outros_desc;
+  const dt_liquido_final = dt_entradas_individuais - dt_descontos_individuais;
+  
+  if (document.getElementById('dt-r-salario')) document.getElementById('dt-r-salario').textContent = window.fmtM(dt_salario_total);
+  if (document.getElementById('dt-r-comissao')) document.getElementById('dt-r-comissao').textContent = window.fmtM(dt_comissao);
+  if (document.getElementById('dt-r-beneficios')) document.getElementById('dt-r-beneficios').textContent = window.fmtM(dt_beneficios_total);
+  if (document.getElementById('dt-r-inss')) document.getElementById('dt-r-inss').textContent = '- ' + window.fmtM(dt_inss);
+  if (document.getElementById('dt-r-irrf')) document.getElementById('dt-r-irrf').textContent = '- ' + window.fmtM(dt_irrf);
+  if (document.getElementById('dt-r-desc')) document.getElementById('dt-r-desc').textContent = '- ' + window.fmtM(dt_outros_desc);
+  
+  const dtLiquidoEl = document.getElementById('dt-liquido');
+  if (dtLiquidoEl) {
+    dtLiquidoEl.textContent = window.fmtM(dt_liquido_final);
+    dtLiquidoEl.className = 'resultado-val ' + (dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+
+  // Diferença Real (Líquido Danrlei Real - Líquido Danrlei)
+  const diferenca_real = dt_liquido_final - d_liquido_final;
+  const dtDiferencaEl = document.getElementById('dt-diferenca-real');
+  if (dtDiferencaEl) {
+    dtDiferencaEl.textContent = (diferenca_real >= 0 ? '' : '- ') + window.fmtM(diferenca_real);
+    dtDiferencaEl.className = 'resultado-val ' + (diferenca_real >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+
+  // --- ABA CRISTIANE ---
+  const c_salario = parseM(document.getElementById('c-salario')?.value);
+  const c_outros_renda = parseM(document.getElementById('c-outros-renda')?.value);
+  const c_va = parseM(document.getElementById('c-va')?.value);
+  const c_outros_ben = parseM(document.getElementById('c-outros-ben')?.value);
+  const c_beneficios_total = c_va + c_outros_ben;
+  const c_outros_desc = window.dadosPessoas.c.descontos.reduce((acc, curr) => acc + curr.val, 0);
+  
+  const c_entradas_individuais = c_salario + c_outros_renda + c_beneficios_total;
+  const c_descontos_individuais = c_outros_desc;
+  const c_liquido_final = c_entradas_individuais - c_descontos_individuais;
+  
+  if (document.getElementById('c-r-salario')) document.getElementById('c-r-salario').textContent = window.fmtM(c_salario);
+  if (document.getElementById('c-r-outros')) document.getElementById('c-r-outros').textContent = window.fmtM(c_outros_renda);
+  if (document.getElementById('c-r-beneficios')) document.getElementById('c-r-beneficios').textContent = window.fmtM(c_beneficios_total);
+  if (document.getElementById('c-r-desc')) document.getElementById('c-r-desc').textContent = '- ' + window.fmtM(c_outros_desc);
+  
+  const cLiquidoEl = document.getElementById('c-liquido');
+  if (cLiquidoEl) {
+    cLiquidoEl.textContent = window.fmtM(c_liquido_final);
+    cLiquidoEl.className = 'resultado-val ' + (c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+
+  // --- RESUMO REAL ---
+  const total_entradas = d_entradas_individuais + c_entradas_individuais;
+  const total_descontos = d_descontos_individuais + c_descontos_individuais;
+  const saldo_final = total_entradas - total_descontos;
+  
+  const resDanEl = document.getElementById('res-dan');
+  if (resDanEl) {
+    resDanEl.textContent = window.fmtM(d_liquido_final);
+    resDanEl.className = 'resumo-val ' + (d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+  
+  const resCrisEl = document.getElementById('res-cris');
+  if (resCrisEl) {
+    resCrisEl.textContent = window.fmtM(c_liquido_final);
+    resCrisEl.className = 'resumo-val ' + (c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+  
+  if (document.getElementById('res-entradas')) document.getElementById('res-entradas').textContent = window.fmtM(total_entradas);
+  if (document.getElementById('res-descontos')) document.getElementById('res-descontos').textContent = window.fmtM(total_descontos);
+  
+  const resSaldoEl = document.getElementById('res-saldo');
+  const resSaldoSubEl = document.getElementById('res-saldo-sub');
+  if (resSaldoEl) {
+    resSaldoEl.textContent = window.fmtM(saldo_final);
+    resSaldoEl.className = 'highlight-val ' + (saldo_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+  if (resSaldoSubEl) {
+    if (saldo_final >= 0) {
+      resSaldoSubEl.textContent = "🎉 Parabéns! Saldo Positivo.";
+      resSaldoSubEl.className = "highlight-sub saldo-positivo";
+    } else {
+      resSaldoSubEl.textContent = "⚠️ Atenção! Saldo Negativo.";
+      resSaldoSubEl.className = "highlight-sub saldo-negativo";
+    }
+  }
+
+  // --- RESUMO TESTE (SIMULAÇÃO) ---
+  const t_total_entradas = dt_entradas_individuais + c_entradas_individuais;
+  const t_total_descontos = dt_descontos_individuais + c_descontos_individuais;
+  const t_saldo_final = t_total_entradas - t_total_descontos;
+  
+  const tResDanEl = document.getElementById('t-res-dan');
+  if (tResDanEl) {
+    tResDanEl.textContent = window.fmtM(dt_liquido_final);
+    tResDanEl.className = 'resumo-val ' + (dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+  
+  const tResCrisEl = document.getElementById('t-res-cris');
+  if (tResCrisEl) {
+    tResCrisEl.textContent = window.fmtM(c_liquido_final);
+    tResCrisEl.className = 'resumo-val ' + (c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+  
+  if (document.getElementById('t-res-entradas')) document.getElementById('t-res-entradas').textContent = window.fmtM(t_total_entradas);
+  if (document.getElementById('t-res-descontos')) document.getElementById('t-res-descontos').textContent = window.fmtM(t_total_descontos);
+  
+  const tResSaldoEl = document.getElementById('t-res-saldo');
+  const tResSaldoSubEl = document.getElementById('t-res-saldo-sub');
+  if (tResSaldoEl) {
+    tResSaldoEl.textContent = window.fmtM(t_saldo_final);
+    tResSaldoEl.className = 'highlight-val ' + (t_saldo_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
+  }
+  if (tResSaldoSubEl) {
+    if (t_saldo_final >= 0) {
+      tResSaldoSubEl.textContent = "🎉 Parabéns! Saldo Positivo.";
+      tResSaldoSubEl.className = "highlight-sub saldo-positivo";
+    } else {
+      tResSaldoSubEl.textContent = "⚠️ Atenção! Saldo Negativo.";
+      tResSaldoSubEl.className = "highlight-sub saldo-negativo";
+    }
+  }
+
+  // --- DISTRIBUIÇÃO DE GASTOS AVANÇADA ---
+  const distContainer = document.getElementById('res-distribuicao');
+  if (distContainer) {
+    const pctDanDesc = d_entradas_individuais > 0 ? (d_descontos_individuais / d_entradas_individuais) * 100 : 0;
+    const pctDanLiq = d_entradas_individuais > 0 ? (d_liquido_final / d_entradas_individuais) * 100 : 0;
+    
+    const pctCrisDesc = c_entradas_individuais > 0 ? (c_descontos_individuais / c_entradas_individuais) * 100 : 0;
+    const pctCrisLiq = c_entradas_individuais > 0 ? (c_liquido_final / c_entradas_individuais) * 100 : 0;
+    
+    const pctTotalDesc = total_entradas > 0 ? (total_descontos / total_entradas) * 100 : 0;
+    const pctTotalLivre = total_entradas > 0 ? (saldo_final / total_entradas) * 100 : 0;
+
+    distContainer.innerHTML = `
+      <div style="margin-bottom: 20px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px; font-weight:600;">
+          <span style="color:var(--green-text);">Saldo Familiar Livre: ${window.fmtM(saldo_final)} (${pctTotalLivre.toFixed(1)}%)</span>
+          <span style="color:var(--red-text);">Descontos Totais da Casa: ${window.fmtM(total_descontos)} (${pctTotalDesc.toFixed(1)}%)</span>
+        </div>
+        <div class="progress-track" style="display:flex;">
+          <div class="progress-fill" style="width:${pctTotalLivre < 0 ? 0 : pctTotalLivre}%; background:var(--green);"></div>
+          <div class="progress-fill" style="width:${pctTotalDesc > 100 ? 100 : pctTotalDesc}%; background:var(--red); border-radius:0;"></div>
+        </div>
+      </div>
+
+      <div class="dist-grid">
+        <div class="dist-col">
+          <div class="dist-col-title">👤 Danrlei (Padrão)</div>
+          <div class="dist-data-row">
+            <span class="dist-label">Total Ganhos:</span>
+            <span class="dist-value">${window.fmtM(d_entradas_individuais)}</span>
+          </div>
+          <div class="dist-data-row">
+            <span class="dist-label">Total Descontos:</span>
+            <span class="dist-value" style="color:var(--red-text);">${window.fmtM(d_descontos_individuais)}</span>
+            <span class="dist-percentage pct-red">${pctDanDesc.toFixed(1)}%</span>
+          </div>
+          <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
+            <span class="dist-label">Líquido Disponível:</span>
+            <span class="dist-value ${d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(d_liquido_final)}</span>
+            <span class="dist-percentage pct-blue">${pctDanLiq.toFixed(1)}%</span>
+          </div>
+        </div>
+
+        <div class="dist-col">
+          <div class="dist-col-title">👩 Cristiane</div>
+          <div class="dist-data-row">
+            <span class="dist-label">Total Ganhos:</span>
+            <span class="dist-value">${window.fmtM(c_entradas_individuais)}</span>
+          </div>
+          <div class="dist-data-row">
+            <span class="dist-label">Total Descontos:</span>
+            <span class="dist-value" style="color:var(--red-text);">${window.fmtM(c_descontos_individuais)}</span>
+            <span class="dist-percentage pct-red">${pctCrisDesc.toFixed(1)}%</span>
+          </div>
+          <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
+            <span class="dist-label">Líquido Disponível:</span>
+            <span class="dist-value ${c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(c_liquido_final)}</span>
+            <span class="dist-percentage pct-purple">${pctCrisLiq.toFixed(1)}%</span>
+          </div>
+        </div>
+
+        <div class="dist-col" style="border-color: rgba(167, 139, 250, 0.2);">
+          <div class="dist-col-title" style="color: var(--purple);">🧪 Danrlei Real (Simulação)</div>
+          <div class="dist-data-row">
+            <span class="dist-label">Ganhos Simulação:</span>
+            <span class="dist-value">${window.fmtM(dt_entradas_individuais)}</span>
+          </div>
+          <div class="dist-data-row">
+            <span class="dist-label">Descontos Simulação:</span>
+            <span class="dist-value" style="color:var(--red-text);">${window.fmtM(dt_descontos_individuais)}</span>
+          </div>
+          <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
+            <span class="dist-label">Líquido Simulação:</span>
+            <span class="dist-value ${dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(dt_liquido_final)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  const inputMes = document.getElementById('mes-atual');
+  const txtPeriodo = inputMes && inputMes.value ? window.formatarMesAno(inputMes.value) : '—';
+  if (document.getElementById('res-periodo')) document.getElementById('res-periodo').textContent = txtPeriodo;
+};
+
+window.formatarMesAno = function(mesString) {
+  if (!mesString) return '—';
+  const parts = mesString.split('-');
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return meses[parseInt(parts[1]) - 1] + ' de ' + parts[0];
+};
+
+window.salvarMes = async function() {
+  const inputMes = document.getElementById('mes-atual');
+  if (!inputMes || !inputMes.value) { window.showToast('⚠️ Selecione um mês para salvar.', 'err'); return; }
+  const mes = inputMes.value;
+  
+  const pacoteDados = {
+    mes,
+    d_inputs: {
+      sal1: document.getElementById('d-sal1').value,
+      sal2: document.getElementById('d-sal2').value,
+      sal3: document.getElementById('d-sal3').value,
+      sal4: document.getElementById('d-sal4').value,
+      sal15: document.getElementById('d-sal15').value,
+      vendas: document.getElementById('d-vendas').value,
+      comissaoTaxa: window.dadosPessoas.d.comissaoTaxa,
+      va: document.getElementById('d-va').value,
+      comb: document.getElementById('d-comb').value,
+      outrosBen: document.getElementById('d-outros-ben').value,
+      descontos: window.dadosPessoas.d.descontos,
+      inssManual: document.getElementById('d-inss-manual').value,
+      irrfManual: document.getElementById('d-irrf-manual').value
+    },
+    dt_inputs: {
+      sal1: document.getElementById('dt-sal1').value,
+      sal2: document.getElementById('dt-sal2').value,
+      sal3: document.getElementById('dt-sal3').value,
+      sal4: document.getElementById('dt-sal4').value,
+      sal5: document.getElementById('dt-sal5').value,
+      vendas: document.getElementById('dt-vendas').value,
+      comissaoTaxa: window.dadosPessoas.dt.comissaoTaxa,
+      va: document.getElementById('dt-va').value,
+      comb: document.getElementById('dt-comb').value,
+      outrosBen: document.getElementById('dt-outros-ben').value,
+      descontos: window.dadosPessoas.dt.descontos,
+      inssManual: document.getElementById('dt-inss-manual').value,
+      irrfManual: document.getElementById('dt-irrf-manual').value
+    },
+    c_inputs: {
+      salario: document.getElementById('c-salario').value,
+      outrosRenda: document.getElementById('c-outros-renda').value,
+      va: document.getElementById('c-va').value,
+      outrosBen: document.getElementById('c-outros-ben').value,
+      descontos: window.dadosPessoas.c.descontos
+    }
+  };
+
+  if (usuarioLogado) {
+    pacoteDados.uid = usuarioLogado.uid;
+    try {
+      await setDoc(doc(db, "fin_meses", mes + '_' + usuarioLogado.uid), pacoteDados);
+      window.showToast('💾 Salvo com sucesso na nuvem!', 'ok');
+    } catch(e) {
+      console.error(e);
+      window.showToast('❌ Falha ao salvar no Firebase: ' + e.message, 'err');
+    }
+  } else {
+    window.historico = window.historico.filter(h => h.mes !== mes);
+    window.historico.push(pacoteDados);
+    window.historico.sort((a,b) => b.mes.localeCompare(a.mes));
+    salvarHistoricoLocal();
+    window.renderHistorico();
+    window.showToast('💾 Salvo localmente neste navegador!', 'ok');
+  }
+};
+
+window.carregarMes = function(mes) {
+  const registro = window.historico.find(h => h.mes === mes);
+  if (!registro) return;
+  
+  if (registro.d_inputs) {
+    document.getElementById('d-sal1').value = registro.d_inputs.sal1 || '';
+    document.getElementById('d-sal2').value = registro.d_inputs.sal2 || '';
+    document.getElementById('d-sal3').value = registro.d_inputs.sal3 || '';
+    document.getElementById('d-sal4').value = registro.d_inputs.sal4 || '';
+    document.getElementById('d-sal15').value = registro.d_inputs.sal15 || '';
+    document.getElementById('d-vendas').value = registro.d_inputs.vendas || '';
+    document.getElementById('d-va').value = registro.d_inputs.va || '';
+    document.getElementById('d-comb').value = registro.d_inputs.comb || '';
+    document.getElementById('d-outros-ben').value = registro.d_inputs.outrosBen || '';
+    document.getElementById('d-inss-manual').value = registro.d_inputs.inssManual || '';
+    document.getElementById('d-irrf-manual').value = registro.d_inputs.irrfManual || '';
+    window.dadosPessoas.d.descontos = registro.d_inputs.descontos || [];
+    window.dadosPessoas.d.comissaoTaxa = registro.d_inputs.comissaoTaxa || 0.00015;
+    
+    const btns = document.getElementById('d-comissao-toggle')?.querySelectorAll('button');
+    if (btns) {
+      btns[0].classList.toggle('active', window.dadosPessoas.d.comissaoTaxa === 0.00015);
+      btns[1].classList.toggle('active', window.dadosPessoas.d.comissaoTaxa === 0.0003);
+    }
+    window.renderDescontos('d');
+  }
+  
+  if (registro.dt_inputs) {
+    document.getElementById('dt-sal1').value = registro.dt_inputs.sal1 || '';
+    document.getElementById('dt-sal2').value = registro.dt_inputs.sal2 || '';
+    document.getElementById('dt-sal3').value = registro.dt_inputs.sal3 || '';
+    document.getElementById('dt-sal4').value = registro.dt_inputs.sal4 || '';
+    document.getElementById('dt-sal5').value = registro.dt_inputs.sal5 || '';
+    document.getElementById('dt-vendas').value = registro.dt_inputs.vendas || '';
+    document.getElementById('dt-va').value = registro.dt_inputs.va || '';
+    document.getElementById('dt-comb').value = registro.dt_inputs.comb || '';
+    document.getElementById('dt-outros-ben').value = registro.dt_inputs.outrosBen || '';
+    document.getElementById('dt-inss-manual').value = registro.dt_inputs.inssManual || '';
+    document.getElementById('dt-irrf-manual').value = registro.dt_inputs.irrfManual || '';
+    window.dadosPessoas.dt.descontos = registro.dt_inputs.descontos || [];
+    window.dadosPessoas.dt.comissaoTaxa = registro.dt_inputs.comissaoTaxa || 0.00015;
+    
+    const btnsT = document.getElementById('dt-comissao-toggle')?.querySelectorAll('button');
+    if (btnsT) {
+      btnsT[0].classList.toggle('active', window.dadosPessoas.dt.comissaoTaxa === 0.00015);
+      btnsT[1].classList.toggle('active', window.dadosPessoas.dt.comissaoTaxa === 0.0003);
+    }
+    window.renderDescontos('dt');
+  }
+  
+  if (registro.c_inputs) {
+    document.getElementById('c-salario').value = registro.c_inputs.salario || '';
+    document.getElementById('c-outros-renda').value = registro.c_inputs.outrosRenda || '';
+    document.getElementById('c-va').value = registro.c_inputs.va || '';
+    document.getElementById('c-outros-ben').value = registro.c_inputs.outrosBen || '';
+    window.dadosPessoas.c.descontos = registro.c_inputs.descontos || [];
+    window.renderDescontos('c');
+  }
+  
+  window.recalcular();
+};
+
+window.limparFormulario = function() {
+  document.querySelectorAll('.moeda-input').forEach(i => i.value = '');
+  window.dadosPessoas.d.descontos = [];
+  window.dadosPessoas.dt.descontos = [];
+  window.dadosPessoas.c.descontos = [];
+  window.renderDescontos('d');
+  window.renderDescontos('dt');
+  window.renderDescontos('c');
+};
+
+window.renderHistorico = function() {
+  const container = document.getElementById('hist-container');
+  if (!container) return;
+  if (window.historico.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">📋 Nenhum histórico registrado ainda.</div>';
+    return;
+  }
+  
+  let html = '';
+  window.historico.forEach(h => {
+    let d_sal = parseM(h.d_inputs?.sal1) + parseM(h.d_inputs?.sal2) + parseM(h.d_inputs?.sal3) + parseM(h.d_inputs?.sal4) + parseM(h.d_inputs?.sal15);
+    let d_com = parseM(h.d_inputs?.vendas) * (h.d_inputs?.comissaoTaxa || 0.00015);
+    let d_ben = parseM(h.d_inputs?.va) + parseM(h.d_inputs?.comb) + parseM(h.d_inputs?.outrosBen);
+    let d_base = d_sal + d_com;
+    let d_inss = parseM(h.d_inputs?.inssManual);
+    let d_irrf = parseM(h.d_inputs?.irrfManual);
+    let d_out = (h.d_inputs?.descontos || []).reduce((a,c) => a + c.val, 0);
+    let d_liq = (d_base + d_ben) - (d_inss + d_irrf + d_out);
+    
+    let c_sal = parseM(h.c_inputs?.salario);
+    let c_outr = parseM(h.c_inputs?.outrosRenda);
+    let c_ben = parseM(h.c_inputs?.va) + parseM(h.c_inputs?.outrosBen);
+    let c_out = (h.c_inputs?.descontos || []).reduce((a,c) => a + c.val, 0);
+    let c_liq = (c_sal + c_outr + c_ben) - c_out;
+    
+    let totalEnt = d_base + d_ben + c_sal + c_outr + c_ben;
+    let totalDesc = d_inss + d_irrf + d_out + c_out;
+    let saldo = totalEnt - totalDesc;
+    
+    html += `
+      <div class="hist-mes">
+        <div class="hist-mes-header">
+          <span class="hist-mes-title">📅 ${window.formatarMesAno(h.mes)}</span>
+          <span class="hist-mes-saldo ${saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(saldo)}</span>
+        </div>
+        <div class="hist-table-responsive">
+          <table class="hist-table">
+            <thead>
+              <tr><th>Membro</th><th>Renda Base</th><th>Comissão / Outros</th><th>Benefícios</th><th>Descontos Totais</th><th>Líquido</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>👤 Danrlei</td>
+                <td>${window.fmtM(d_sal)}</td>
+                <td>${window.fmtM(d_com)}</td>
+                <td>${window.fmtM(d_ben)}</td>
+                <td style="color:var(--red-text);">- ${window.fmtM(d_inss + d_irrf + d_out)}</td>
+                <td class="${d_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${window.fmtM(d_liq)}</td>
+              </tr>
+              <tr>
+                <td>👩 Cristiane</td>
+                <td>${window.fmtM(c_sal)}</td>
+                <td>${window.fmtM(c_outr)}</td>
+                <td>${window.fmtM(c_ben)}</td>
+                <td style="color:var(--red-text);">- ${window.fmtM(c_out)}</td>
+                <td class="${c_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${window.fmtM(c_liq)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+          <button class="btn btn-sm" style="background:var(--bg4);color:var(--blue2);" onclick="window.ativarRegistroMes('${h.mes}')">📂 Carregar</button>
+          <button class="btn btn-sm" style="background:rgba(239,68,68,0.1);color:var(--red-text);" onclick="window.excluirMes('${h.mes}')">🗑️ Apagar</button>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+};
+
+window.ativarRegistroMes = function(mes) {
+  const inputMes = document.getElementById('mes-atual');
+  if (inputMes) inputMes.value = mes;
+  window.carregarMes(mes);
+  window.recalcular();
+  window.switchTab('resumo', document.querySelector('.tab'));
+};
+
+window.excluirMes = async function(mes) {
+  if (!confirm('Desejas apagar este mês do histórico?')) return;
+  window.historico = window.historico.filter(h => h.mes !== mes);
+  salvarHistoricoLocal();
+  window.renderHistorico();
+  const inputMes = document.getElementById('mes-atual');
+  if (inputMes && inputMes.value === mes) {
+    window.limparFormulario();
+    window.recalcular();
+  }
+  window.showToast('🗑️ Mês excluído do histórico.', 'ok');
+  if (usuarioLogado) {
+    try {
+      await deleteDoc(doc(db, "fin_meses", mes + '_' + usuarioLogado.uid));
+    } catch (e) {
+      console.error('Erro ao excluir no Firebase:', e);
+      window.showToast('⚠️ Erro ao deletar da nuvem.', 'err');
+    }
+  }
+};
+
+let toastTimer;
+window.showToast = function(msg, tipo) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.className = tipo === 'ok' ? 'toast-ok' : 'toast-err';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3500);
+};
+
+document.querySelectorAll('.moeda-input').forEach(input => setupMoedaInput(input));
+
+const inputMes = document.getElementById('mes-atual');
+if (inputMes) {
+  const hoje = new Date();
+  const ano = hoje.getFullYear();
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+  inputMes.value = `${ano}-${mes}`;
+  inputMes.addEventListener('change', () => {
+    window.limparFormulario();
+    window.carregarMes(inputMes.value);
+    window.recalcular();
+  });
+}
+
+window.recalcular();
+</script>
+</body>
+</html>
