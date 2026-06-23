@@ -56,7 +56,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
 .field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
-input[type="text"],select{
+input[type=\"text\"],select{
   background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
   color:var(--text);padding:9px 12px;font-size:13px;width:100%;transition:border-color 0.15s;font-family:inherit;}
 input:focus,select:focus{outline:none;border-color:var(--blue);}
@@ -518,45 +518,6 @@ const provider = new GoogleAuthProvider();
 let usuarioLogado = null;
 window.historico = [];
 
-function calculateINSS2026(brute) {
-  const faixas = [
-    { limite: 1621.00, aliquota: 0.075 },
-    { limite: 2902.84, aliquota: 0.09 },
-    { limite: 4354.27, aliquota: 0.12 },
-    { limite: 8475.55, aliquota: 0.14 }
-  ];
-  let inss = 0;
-  let anterior = 0;
-  for (let faixa of faixas) {
-    if (brute <= anterior) break;
-    const valor = Math.min(brute, faixa.limite) - anterior;
-    inss += valor * faixa.aliquota;
-    anterior = faixa.limite;
-  }
-  return inss;
-}
-
-function calculateIRRF2026(baseCalculo) {
-  if (baseCalculo <= 5000) return 0;
-  const faixas = [
-    { limite: 2826.65, aliquota: 0.075, deducao: 158.40 },
-    { limite: 3751.05, aliquota: 0.15, deducao: 370.40 },
-    { limite: 4664.68, aliquota: 0.225, deducao: 651.73 },
-    { limite: 7786.02, aliquota: 0.275, deducao: 886.63 }
-  ];
-  let irrf = 0;
-  for (let faixa of faixas) {
-    if (baseCalculo <= faixa.limite) {
-      irrf = (baseCalculo * faixa.aliquota) - faixa.deducao;
-      return Math.max(0, irrf);
-    }
-  }
-  if (baseCalculo > 7786.02) {
-    irrf = (baseCalculo * 0.275) - 886.63;
-  }
-  return Math.max(0, irrf);
-}
-
 window.fazerLogin = function() {
   signInWithPopup(auth, provider).catch(e => window.showToast('❌ Erro login: ' + e.message, 'err'));
 };
@@ -745,7 +706,6 @@ window.recalcular = function() {
   
   const d_base_calculo = d_salario_total + d_comissao;
   
-  // Modificado para pegar os valores preenchidos manualmente pelo usuário
   const d_inss = parseM(document.getElementById('d-inss-manual')?.value);
   const d_irrf = parseM(document.getElementById('d-irrf-manual')?.value);
   
@@ -767,7 +727,7 @@ window.recalcular = function() {
     dLiquidoEl.className = 'resultado-val ' + (d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
 
-  // --- ABA DANRLEI REAL (ANTIGA TESTE) ---
+  // --- ABA DANRLEI REAL ---
   const dt_sal1 = parseM(document.getElementById('dt-sal1')?.value);
   const dt_sal2 = parseM(document.getElementById('dt-sal2')?.value);
   const dt_sal3 = parseM(document.getElementById('dt-sal3')?.value);
@@ -788,7 +748,6 @@ window.recalcular = function() {
   
   const dt_base_calculo = dt_salario_total + dt_comissao;
   
-  // Modificado para pegar os valores preenchidos manualmente pelo usuário
   const dt_inss = parseM(document.getElementById('dt-inss-manual')?.value);
   const dt_irrf = parseM(document.getElementById('dt-irrf-manual')?.value);
   
@@ -810,7 +769,6 @@ window.recalcular = function() {
     dtLiquidoEl.className = 'resultado-val ' + (dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
 
-  // Diferença Real (Líquido Danrlei Real - Líquido Danrlei)
   const diferenca_real = dt_liquido_final - d_liquido_final;
   const dtDiferencaEl = document.getElementById('dt-diferenca-real');
   if (dtDiferencaEl) {
@@ -864,7 +822,7 @@ window.recalcular = function() {
   const resSaldoEl = document.getElementById('res-saldo');
   const resSaldoSubEl = document.getElementById('res-saldo-sub');
   if (resSaldoEl) {
-    resSaldoEl.textContent = window.fmtM(saldo_final);
+    resSaldoEl.textContent = (saldo_final >= 0 ? '' : '- ') + window.fmtM(saldo_final);
     resSaldoEl.className = 'highlight-val ' + (saldo_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   if (resSaldoSubEl) {
@@ -900,7 +858,7 @@ window.recalcular = function() {
   const tResSaldoEl = document.getElementById('t-res-saldo');
   const tResSaldoSubEl = document.getElementById('t-res-saldo-sub');
   if (tResSaldoEl) {
-    tResSaldoEl.textContent = window.fmtM(t_saldo_final);
+    tResSaldoEl.textContent = (t_saldo_final >= 0 ? '' : '- ') + window.fmtM(t_saldo_final);
     tResSaldoEl.className = 'highlight-val ' + (t_saldo_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   if (tResSaldoSubEl) {
@@ -913,7 +871,7 @@ window.recalcular = function() {
     }
   }
 
-  // --- DISTRIBUIÇÃO DE GASTOS AVANÇADA ---
+  // --- DISTRIBUIÇÃO DE GASTOS AVANÇADA CORRIGIDA ---
   const distContainer = document.getElementById('res-distribuicao');
   if (distContainer) {
     const pctDanDesc = d_entradas_individuais > 0 ? (d_descontos_individuais / d_entradas_individuais) * 100 : 0;
@@ -923,17 +881,22 @@ window.recalcular = function() {
     const pctCrisLiq = c_entradas_individuais > 0 ? (c_liquido_final / c_entradas_individuais) * 100 : 0;
     
     const pctTotalDesc = total_entradas > 0 ? (total_descontos / total_entradas) * 100 : 0;
+    // Garante que o cálculo da porcentagem do saldo livre faça sentido mesmo se for negativo
     const pctTotalLivre = total_entradas > 0 ? (saldo_final / total_entradas) * 100 : 0;
+
+    // Definição de cores e sinalizadores dinâmicos com base no saldo real
+    const labelSaldoCor = saldo_final >= 0 ? 'var(--green-text)' : 'var(--red-text)';
+    const sinalSaldo = saldo_final >= 0 ? '' : '- ';
 
     distContainer.innerHTML = `
       <div style="margin-bottom: 20px;">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px; font-weight:600;">
-          <span style="color:var(--green-text);">Saldo Familiar Livre: ${window.fmtM(saldo_final)} (${pctTotalLivre.toFixed(1)}%)</span>
+          <span style="color:${labelSaldoCor};">Saldo Familiar Livre: ${sinalSaldo}${window.fmtM(saldo_final)} (${pctTotalLivre.toFixed(1)}%)</span>
           <span style="color:var(--red-text);">Descontos Totais da Casa: ${window.fmtM(total_descontos)} (${pctTotalDesc.toFixed(1)}%)</span>
         </div>
         <div class="progress-track" style="display:flex;">
           <div class="progress-fill" style="width:${pctTotalLivre < 0 ? 0 : pctTotalLivre}%; background:var(--green);"></div>
-          <div class="progress-fill" style="width:${pctTotalDesc > 100 ? 100 : pctTotalDesc}%; background:var(--red); border-radius:0;"></div>
+          <div class="progress-fill" style="width:${pctTotalLivre < 0 ? 100 : pctTotalDesc}%; background:var(--red); border-radius:0;"></div>
         </div>
       </div>
 
@@ -951,7 +914,7 @@ window.recalcular = function() {
           </div>
           <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
             <span class="dist-label">Líquido Disponível:</span>
-            <span class="dist-value ${d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(d_liquido_final)}</span>
+            <span class="dist-value ${d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${d_liquido_final >= 0 ? '' : '- '}${window.fmtM(d_liquido_final)}</span>
             <span class="dist-percentage pct-blue">${pctDanLiq.toFixed(1)}%</span>
           </div>
         </div>
@@ -969,7 +932,7 @@ window.recalcular = function() {
           </div>
           <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
             <span class="dist-label">Líquido Disponível:</span>
-            <span class="dist-value ${c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(c_liquido_final)}</span>
+            <span class="dist-value ${c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${c_liquido_final >= 0 ? '' : '- '}${window.fmtM(c_liquido_final)}</span>
             <span class="dist-percentage pct-purple">${pctCrisLiq.toFixed(1)}%</span>
           </div>
         </div>
@@ -986,7 +949,7 @@ window.recalcular = function() {
           </div>
           <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
             <span class="dist-label">Líquido Simulação:</span>
-            <span class="dist-value ${dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(dt_liquido_final)}</span>
+            <span class="dist-value ${dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${dt_liquido_final >= 0 ? '' : '- '}${window.fmtM(dt_liquido_final)}</span>
           </div>
         </div>
       </div>
@@ -1175,7 +1138,7 @@ window.renderHistorico = function() {
       <div class="hist-mes">
         <div class="hist-mes-header">
           <span class="hist-mes-title">📅 ${window.formatarMesAno(h.mes)}</span>
-          <span class="hist-mes-saldo ${saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(saldo)}</span>
+          <span class="hist-mes-saldo ${saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${saldo >= 0 ? '' : '- '}${window.fmtM(saldo)}</span>
         </div>
         <div class="hist-table-responsive">
           <table class="hist-table">
@@ -1189,7 +1152,7 @@ window.renderHistorico = function() {
                 <td>${window.fmtM(d_com)}</td>
                 <td>${window.fmtM(d_ben)}</td>
                 <td style="color:var(--red-text);">- ${window.fmtM(d_inss + d_irrf + d_out)}</td>
-                <td class="${d_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${window.fmtM(d_liq)}</td>
+                <td class="${d_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${d_liq >= 0 ? '' : '- '}${window.fmtM(d_liq)}</td>
               </tr>
               <tr>
                 <td>👩 Cristiane</td>
@@ -1197,7 +1160,7 @@ window.renderHistorico = function() {
                 <td>${window.fmtM(c_outr)}</td>
                 <td>${window.fmtM(c_ben)}</td>
                 <td style="color:var(--red-text);">- ${window.fmtM(c_out)}</td>
-                <td class="${c_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${window.fmtM(c_liq)}</td>
+                <td class="${c_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${c_liq >= 0 ? '' : '- '}${window.fmtM(c_liq)}</td>
               </tr>
             </tbody>
           </table>
