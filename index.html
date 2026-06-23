@@ -56,10 +56,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
 .field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
-input[type=\"text\"],select{
-  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
-  color:var(--text);padding:9px 12px;font-size:13px;width:100%;transition:border-color 0.15s;font-family:inherit;}
-input:focus,select:focus{outline:none;border-color:var(--blue);}
+
+/* Restaurado os inputs de texto e classes de moeda */
+input[type="text"], .moeda-input, select {
+  background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm);
+  color:var(--text); padding:9px 12px; font-size:13px; width:100%; transition:border-color 0.15s; font-family:inherit;
+}
+input:focus, select:focus { outline:none; border-color:var(--blue); }
 .field-hint{font-size:10px;color:var(--muted);margin-top:2px;}
 
 .toggle-group{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
@@ -137,7 +140,6 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 .progress-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 .progress-fill{height:100%;transition:width 0.5s ease;}
 
-/* Novos estilos para o painel avançado de distribuição */
 .dist-grid {display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 10px;}
 .dist-col {background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px;}
 .dist-col-title {font-size: 12px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); padding-bottom: 6px;}
@@ -592,8 +594,14 @@ function parseM(v) {
   return parseFloat(s) || 0;
 }
 
-window.fmtM = function(v) {
-  return 'R$ ' + Math.abs(parseFloat(v) || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+/* Modificada para incluir o sinal negativo corretamente sem quebrar alinhamentos */
+window.fmtM = function(v, exibirSinalNegativo = false) {
+  const num = parseFloat(v) || 0;
+  const str = Math.abs(num).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (num < 0 && exibirSinalNegativo) {
+    return '- R$ ' + str;
+  }
+  return 'R$ ' + str;
 };
 
 function setupMoedaInput(input) {
@@ -685,7 +693,6 @@ window.renderDescontos = function(pfx) {
 };
 
 window.recalcular = function() {
-  // --- ABA DANRLEI (PADRÃO) ---
   const d_sal1 = parseM(document.getElementById('d-sal1')?.value);
   const d_sal2 = parseM(document.getElementById('d-sal2')?.value);
   const d_sal3 = parseM(document.getElementById('d-sal3')?.value);
@@ -723,11 +730,10 @@ window.recalcular = function() {
   
   const dLiquidoEl = document.getElementById('d-liquido');
   if (dLiquidoEl) {
-    dLiquidoEl.textContent = window.fmtM(d_liquido_final);
+    dLiquidoEl.textContent = window.fmtM(d_liquido_final, true);
     dLiquidoEl.className = 'resultado-val ' + (d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
 
-  // --- ABA DANRLEI REAL ---
   const dt_sal1 = parseM(document.getElementById('dt-sal1')?.value);
   const dt_sal2 = parseM(document.getElementById('dt-sal2')?.value);
   const dt_sal3 = parseM(document.getElementById('dt-sal3')?.value);
@@ -765,18 +771,17 @@ window.recalcular = function() {
   
   const dtLiquidoEl = document.getElementById('dt-liquido');
   if (dtLiquidoEl) {
-    dtLiquidoEl.textContent = window.fmtM(dt_liquido_final);
+    dtLiquidoEl.textContent = window.fmtM(dt_liquido_final, true);
     dtLiquidoEl.className = 'resultado-val ' + (dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
 
   const diferenca_real = dt_liquido_final - d_liquido_final;
   const dtDiferencaEl = document.getElementById('dt-diferenca-real');
   if (dtDiferencaEl) {
-    dtDiferencaEl.textContent = (diferenca_real >= 0 ? '' : '- ') + window.fmtM(diferenca_real);
+    dtDiferencaEl.textContent = window.fmtM(diferenca_real, true);
     dtDiferencaEl.className = 'resultado-val ' + (diferenca_real >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
 
-  // --- ABA CRISTIANE ---
   const c_salario = parseM(document.getElementById('c-salario')?.value);
   const c_outros_renda = parseM(document.getElementById('c-outros-renda')?.value);
   const c_va = parseM(document.getElementById('c-va')?.value);
@@ -795,24 +800,23 @@ window.recalcular = function() {
   
   const cLiquidoEl = document.getElementById('c-liquido');
   if (cLiquidoEl) {
-    cLiquidoEl.textContent = window.fmtM(c_liquido_final);
+    cLiquidoEl.textContent = window.fmtM(c_liquido_final, true);
     cLiquidoEl.className = 'resultado-val ' + (c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
 
-  // --- RESUMO REAL ---
   const total_entradas = d_entradas_individuais + c_entradas_individuais;
   const total_descontos = d_descontos_individuais + c_descontos_individuais;
   const saldo_final = total_entradas - total_descontos;
   
   const resDanEl = document.getElementById('res-dan');
   if (resDanEl) {
-    resDanEl.textContent = window.fmtM(d_liquido_final);
+    resDanEl.textContent = window.fmtM(d_liquido_final, true);
     resDanEl.className = 'resumo-val ' + (d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   
   const resCrisEl = document.getElementById('res-cris');
   if (resCrisEl) {
-    resCrisEl.textContent = window.fmtM(c_liquido_final);
+    resCrisEl.textContent = window.fmtM(c_liquido_final, true);
     resCrisEl.className = 'resumo-val ' + (c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   
@@ -822,7 +826,7 @@ window.recalcular = function() {
   const resSaldoEl = document.getElementById('res-saldo');
   const resSaldoSubEl = document.getElementById('res-saldo-sub');
   if (resSaldoEl) {
-    resSaldoEl.textContent = (saldo_final >= 0 ? '' : '- ') + window.fmtM(saldo_final);
+    resSaldoEl.textContent = window.fmtM(saldo_final, true);
     resSaldoEl.className = 'highlight-val ' + (saldo_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   if (resSaldoSubEl) {
@@ -835,20 +839,19 @@ window.recalcular = function() {
     }
   }
 
-  // --- RESUMO TESTE (SIMULAÇÃO) ---
   const t_total_entradas = dt_entradas_individuais + c_entradas_individuais;
   const t_total_descontos = dt_descontos_individuais + c_descontos_individuais;
   const t_saldo_final = t_total_entradas - t_total_descontos;
   
   const tResDanEl = document.getElementById('t-res-dan');
   if (tResDanEl) {
-    tResDanEl.textContent = window.fmtM(dt_liquido_final);
+    tResDanEl.textContent = window.fmtM(dt_liquido_final, true);
     tResDanEl.className = 'resumo-val ' + (dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   
   const tResCrisEl = document.getElementById('t-res-cris');
   if (tResCrisEl) {
-    tResCrisEl.textContent = window.fmtM(c_liquido_final);
+    tResCrisEl.textContent = window.fmtM(c_liquido_final, true);
     tResCrisEl.className = 'resumo-val ' + (c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   
@@ -858,7 +861,7 @@ window.recalcular = function() {
   const tResSaldoEl = document.getElementById('t-res-saldo');
   const tResSaldoSubEl = document.getElementById('t-res-saldo-sub');
   if (tResSaldoEl) {
-    tResSaldoEl.textContent = (t_saldo_final >= 0 ? '' : '- ') + window.fmtM(t_saldo_final);
+    tResSaldoEl.textContent = window.fmtM(t_saldo_final, true);
     tResSaldoEl.className = 'highlight-val ' + (t_saldo_final >= 0 ? 'saldo-positivo' : 'saldo-negativo');
   }
   if (tResSaldoSubEl) {
@@ -871,7 +874,6 @@ window.recalcular = function() {
     }
   }
 
-  // --- DISTRIBUIÇÃO DE GASTOS AVANÇADA CORRIGIDA ---
   const distContainer = document.getElementById('res-distribuicao');
   if (distContainer) {
     const pctDanDesc = d_entradas_individuais > 0 ? (d_descontos_individuais / d_entradas_individuais) * 100 : 0;
@@ -881,17 +883,14 @@ window.recalcular = function() {
     const pctCrisLiq = c_entradas_individuais > 0 ? (c_liquido_final / c_entradas_individuais) * 100 : 0;
     
     const pctTotalDesc = total_entradas > 0 ? (total_descontos / total_entradas) * 100 : 0;
-    // Garante que o cálculo da porcentagem do saldo livre faça sentido mesmo se for negativo
     const pctTotalLivre = total_entradas > 0 ? (saldo_final / total_entradas) * 100 : 0;
 
-    // Definição de cores e sinalizadores dinâmicos com base no saldo real
     const labelSaldoCor = saldo_final >= 0 ? 'var(--green-text)' : 'var(--red-text)';
-    const sinalSaldo = saldo_final >= 0 ? '' : '- ';
 
     distContainer.innerHTML = `
       <div style="margin-bottom: 20px;">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px; font-weight:600;">
-          <span style="color:${labelSaldoCor};">Saldo Familiar Livre: ${sinalSaldo}${window.fmtM(saldo_final)} (${pctTotalLivre.toFixed(1)}%)</span>
+          <span style="color:${labelSaldoCor};">Saldo Familiar Livre: ${window.fmtM(saldo_final, true)} (${pctTotalLivre.toFixed(1)}%)</span>
           <span style="color:var(--red-text);">Descontos Totais da Casa: ${window.fmtM(total_descontos)} (${pctTotalDesc.toFixed(1)}%)</span>
         </div>
         <div class="progress-track" style="display:flex;">
@@ -914,7 +913,7 @@ window.recalcular = function() {
           </div>
           <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
             <span class="dist-label">Líquido Disponível:</span>
-            <span class="dist-value ${d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${d_liquido_final >= 0 ? '' : '- '}${window.fmtM(d_liquido_final)}</span>
+            <span class="dist-value ${d_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(d_liquido_final, true)}</span>
             <span class="dist-percentage pct-blue">${pctDanLiq.toFixed(1)}%</span>
           </div>
         </div>
@@ -932,7 +931,7 @@ window.recalcular = function() {
           </div>
           <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
             <span class="dist-label">Líquido Disponível:</span>
-            <span class="dist-value ${c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${c_liquido_final >= 0 ? '' : '- '}${window.fmtM(c_liquido_final)}</span>
+            <span class="dist-value ${c_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(c_liquido_final, true)}</span>
             <span class="dist-percentage pct-purple">${pctCrisLiq.toFixed(1)}%</span>
           </div>
         </div>
@@ -949,7 +948,7 @@ window.recalcular = function() {
           </div>
           <div class="dist-data-row" style="margin-top:4px; border-top: 1px dashed rgba(255,255,255,0.05); padding-top:6px;">
             <span class="dist-label">Líquido Simulação:</span>
-            <span class="dist-value ${dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${dt_liquido_final >= 0 ? '' : '- '}${window.fmtM(dt_liquido_final)}</span>
+            <span class="dist-value ${dt_liquido_final >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(dt_liquido_final, true)}</span>
           </div>
         </div>
       </div>
@@ -1138,7 +1137,7 @@ window.renderHistorico = function() {
       <div class="hist-mes">
         <div class="hist-mes-header">
           <span class="hist-mes-title">📅 ${window.formatarMesAno(h.mes)}</span>
-          <span class="hist-mes-saldo ${saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${saldo >= 0 ? '' : '- '}${window.fmtM(saldo)}</span>
+          <span class="hist-mes-saldo ${saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${window.fmtM(saldo, true)}</span>
         </div>
         <div class="hist-table-responsive">
           <table class="hist-table">
@@ -1152,7 +1151,7 @@ window.renderHistorico = function() {
                 <td>${window.fmtM(d_com)}</td>
                 <td>${window.fmtM(d_ben)}</td>
                 <td style="color:var(--red-text);">- ${window.fmtM(d_inss + d_irrf + d_out)}</td>
-                <td class="${d_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${d_liq >= 0 ? '' : '- '}${window.fmtM(d_liq)}</td>
+                <td class="${d_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${window.fmtM(d_liq, true)}</td>
               </tr>
               <tr>
                 <td>👩 Cristiane</td>
@@ -1160,7 +1159,7 @@ window.renderHistorico = function() {
                 <td>${window.fmtM(c_outr)}</td>
                 <td>${window.fmtM(c_ben)}</td>
                 <td style="color:var(--red-text);">- ${window.fmtM(c_out)}</td>
-                <td class="${c_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${c_liq >= 0 ? '' : '- '}${window.fmtM(c_liq)}</td>
+                <td class="${c_liq >= 0 ? 'saldo-positivo' : 'saldo-negativo'}" style="font-weight:600;">${window.fmtM(c_liq, true)}</td>
               </tr>
             </tbody>
           </table>
