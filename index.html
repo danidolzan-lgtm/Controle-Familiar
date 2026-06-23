@@ -225,13 +225,13 @@ input:focus, select:focus { outline:none; border-color:var(--blue); }
   <div id="sec-resumo-teste" class="section">
     <div class="highlight-card" style="background: linear-gradient(135deg, #2b1b40 0%, #1a122c 100%); border-color: rgba(167, 139, 250, 0.3);">
       <div>
-        <div class="highlight-label">🧪 Saldo do mês (Simulação)</div>
+        <div class="highlight-label">🧪 Saldo do mês</div>
         <div class="highlight-val" id="t-res-saldo">R$ 0,00</div>
         <div class="highlight-sub" id="t-res-saldo-sub">—</div>
       </div>
       <div style="text-align:right;">
-        <div class="highlight-label">⚠️ Status</div>
-        <div style="font-size:16px;font-weight:700; color: var(--purple);" id="t-res-periodo">Apenas Simulação</div>
+        <div class="highlight-label">📅 Período</div>
+        <div style="font-size:18px;font-weight:700;" id="t-res-periodo">—</div>
       </div>
     </div>
 
@@ -248,12 +248,12 @@ input:focus, select:focus { outline:none; border-color:var(--blue); }
       </div>
       <div class="resumo-card">
         <div class="resumo-icon">📥</div>
-        <div class="resumo-label">Total Entradas Simulação</div>
+        <div class="resumo-label">Total Entradas</div>
         <div class="resumo-val" id="t-res-entradas">R$ 0,00</div>
       </div>
       <div class="resumo-card">
         <div class="resumo-icon">📤</div>
-        <div class="resumo-label">Total Descontos Simulação</div>
+        <div class="resumo-label">Total Descontos</div>
         <div class="resumo-val" id="t-res-descontos">R$ 0,00</div>
       </div>
     </div>
@@ -958,6 +958,7 @@ window.recalcular = function() {
   const inputMes = document.getElementById('mes-atual');
   const txtPeriodo = inputMes && inputMes.value ? window.formatarMesAno(inputMes.value) : '—';
   if (document.getElementById('res-periodo')) document.getElementById('res-periodo').textContent = txtPeriodo;
+  if (document.getElementById('t-res-periodo')) document.getElementById('t-res-periodo').textContent = txtPeriodo;
 };
 
 window.formatarMesAno = function(mesString) {
